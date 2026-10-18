@@ -93,10 +93,10 @@ If you use this work, please cite the repository:
   title  = {Dual-Axis Solar Tracker: A Model-Based Design Study in Simulink},
   author = {Abdelrahman Hesham},
   year   = {2026},
-  url    = {<repository URL>}
+  url    = {https://github.com/ae-hesham/Dual-Axis-Solar-Tracker-MBD-and-Hardware}
 }
 ```
 
 ## License
 
-Specify a license, for example MIT.
+This project is licensed under the Proprietary License - see the [LICENSE](LICENSE) file for details.
