@@ -3,7 +3,7 @@
 [![MATLAB](https://img.shields.io/badge/MATLAB-Simulink-orange?style=for-the-badge&logo=mathworks)](https://www.mathworks.com/)
 [![Stage](https://img.shields.io/badge/Stage-Model--in--the--Loop%20(MIL)-blue?style=for-the-badge)](#roadmap)
 [![Status](https://img.shields.io/badge/Status-Work%20in%20Progress-yellow?style=for-the-badge)](#roadmap)
-[![License](https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge)](#license)
+[![License](https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge)](LICENSE)
 
 ---
 
@@ -66,36 +66,4 @@ Development adheres strictly to two engineering constraints:
 
 * **Solar Elevation Angle ($\alpha$):** Calculated at solar noon as:
   $$\alpha = 90^\circ - \vert{}\phi - \delta\vert{}$$
-  *Where $\phi = 30.97^\circ\text{ N}$ (Latitude) and $\delta \approx -4.3^\circ$ (Solar Declination), matching early October.*
-
-* **Current Sensor Resolution:**
-  $$\Delta I = \frac{10\,\mu\text{V}}{R_{shunt}}$$
-  *For an assumed $R_{shunt} = 0.1\,\Omega$, this yields a discrete resolution of $100\,\mu\text{A}/\text{LSB}$. Dual INA219 modules (PV and Battery lines) utilize distinct I2C bus addresses.*
-
----
-
-## 🗺️ Project Roadmap
-
-- [x] Solar geometry & irradiance modeling
-- [x] Photovoltaic (PV) single-diode model
-- [x] Complete power chain (Buck, Charger, Protection, Battery SOC, Boost)
-- [x] Position control loops & INA219 sensor telemetry
-- [ ] **Sensor Noise & Non-Idealities:** Ingestion of INA219 offset, conversion/averaging latency, and I2C jitter effects on tracker convergence.
-- [ ] **Stateflow P&O Tracker:** Implementation of Perturb-and-Observe (P&O) algorithm controlling **panel orientation angles** (mechanical MPPT).
-- [ ] **Comparative Performance Analysis:** 12-hour time-compressed comparison:
-  1. Fixed panel setup
-  2. Mechanical P&O tracker
-  3. Ideal mathematical tracker
-- [ ] **Embedded Target Code Generation (PIL/HIL).**
-
----
-
-## 📂 Repository Structure
-
-```text
-.
-├── models/         # Simulink model files (.slx) & animations (.gif)
-├── scripts/        # Analytical verification and baseline calculations
-├── data/           # Simulation logs, dataset, and reference parameters
-├── docs/           # High-resolution block diagrams and technical documentation
-└── README.md       # Project documentation
+  *Where $\phi = 30.97^\circ\text{ N}$ (Latitude) and $\delta \approx -4.3^\circ$ (Solar Declination),
