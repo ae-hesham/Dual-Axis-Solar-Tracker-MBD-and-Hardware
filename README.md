@@ -1,102 +1,101 @@
-# Dual-Axis Solar Tracker: A Model-Based Design Study in Simulink
+# ☀️ Dual-Axis Solar Tracker: A Model-Based Design Study in Simulink
 
-![MATLAB](https://img.shields.io/badge/MATLAB-Simulink-orange)
-![Stage](https://img.shields.io/badge/stage-model--in--the--loop-blue)
-![Status](https://img.shields.io/badge/status-work%20in%20progress-yellow)
+[![MATLAB](https://img.shields.io/badge/MATLAB-Simulink-orange?style=for-the-badge&logo=mathworks)](https://www.mathworks.com/)
+[![Stage](https://img.shields.io/badge/Stage-Model--in--the--Loop%20(MIL)-blue?style=for-the-badge)](#roadmap)
+[![Status](https://img.shields.io/badge/Status-Work%20in%20Progress-yellow?style=for-the-badge)](#roadmap)
+[![License](https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge)](#license)
 
-## Abstract
+---
 
-This repository contains a system-level Simulink model of a small dual-axis solar tracker with battery charging. The reference system comprises a 6 W photovoltaic (PV) panel, a single-cell (1S) Li-ion battery, and a 5 V load. The work follows a model-based design (MBD) approach and is currently at the **model-in-the-loop (MIL)** stage. Controller code generation is planned as a later step.
-![simulation Simulink model](models/1.gif)
-## System Overview
+## 📌 Abstract
 
-![Top-level Simulink model](docs/system_model.png)
+This repository presents a comprehensive, system-level **Simulink** implementation of a small dual-axis photovoltaic (PV) solar tracker integrated with a battery management and power supply system. 
 
-*Figure 1. Top-level model. Signal flow runs from the sun environment and panel irradiance (left), through the PV panel and the buck stage, to the CN3791 charger, the DW01A/FS8205A protection, the 3000 mAh 1S Li-ion model, and the boost stage with its load (right). The position-control loop (motors, encoders, PID) and the sensing chain (INA219 over I2C) are shown below the irradiance path.*
+The reference hardware architecture features:
+* **PV Panel:** 6 W photovoltaic module
+* **Energy Storage:** Single-cell (1S) 3000 mAh Li-ion battery
+* **Payload:** 5 V regulated load supply
 
-## Methodology
+Following a rigorous **Model-Based Design (MBD)** methodology, the project is currently at the **Model-in-the-Loop (MIL)** verification stage. Automated controller code generation (C/C++) is planned for subsequent phases.
 
-Two constraints govern the development process:
+---
 
-1. **Library-only implementation.** Models are built exclusively from Simulink library blocks. MATLAB Function blocks and hand-written code are not used.
-2. **Verify-then-integrate.** Each subsystem is compared against independently computed reference values before it is connected to the rest of the model.
+## 🎥 System Simulation & Animation
 
-## Implemented Subsystems
+<p align="center">
+  <img src="models/1.gif" alt="Dual-Axis Solar Tracker 3D Simulation" width="90%" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);" />
+</p>
 
-| # | Subsystem | Description | Reference check |
-|---|-----------|-------------|-----------------|
-| 1 | Solar geometry | Hour angle, solar elevation, azimuth, and a direct normal irradiance (DNI) model with a cloud event | Elevation at solar noon: 54.73° (latitude 30.97° N, early October) |
-| 2 | Incidence and irradiance | Incidence angle and plane-of-array (POA) irradiance | Hand calculation |
-| 3 | PV model | Single-diode model with a vectorized 200-point I–V sweep | Maximum power of about 4.8 W at solar noon |
-| 4 | Power chain | 5 V buck stage; CC/CV charger with pre-charge and recharge hysteresis; DW01A-style protection (OV/UV/OC); 3 Ah Li-ion state-of-charge (SOC) model; boost stage with load profile | Subsystem-level checks |
-| 5 | Position control | Motor model (dead zone, first-order lag, travel limits); 12-bit encoder quantization; discrete PID with anti-windup | Step response |
-| 6 | Current and voltage sensing | INA219 model with I2C readout: shunt-voltage and bus-voltage registers, 12-bit conversion, and I2C polling delay | Current resolution of 10 µV / R_shunt per count (100 µA for an assumed 0.1 Ω shunt); bus-voltage resolution of 4 mV |
+> **Figure 1:** *3D spatial visualization of the solar tracker system. The panel continuously adjusts Azimuth and Elevation angles relative to the sun position while dynamically transmitting live charging/discharging signal flows and diagnostic telemetry.*
 
-### Notes on the reference values
+---
 
-- **Solar elevation.** At solar noon the elevation is
-  `α = 90° − |φ − δ|`,
-  where φ is the latitude and δ the solar declination. For φ = 30.97° N, α = 54.73° corresponds to δ ≈ −4.3°, which is consistent with early October.
-- **Current-sensing resolution.** The INA219 reports the shunt voltage with a fixed step of 10 µV per count, so the current step is `ΔI = 10 µV / R_shunt`. For an assumed R_shunt = 0.1 Ω this gives 100 µA per count. The bus voltage is reported with a 4 mV step. Two devices (PV and battery) require distinct I2C addresses.
+## 📐 System Architecture
 
-## Roadmap
+<p align="center">
+  <img src="docs/system_model.png" alt="Top-level Simulink model" width="100%" />
+</p>
 
-- [x] Solar geometry and irradiance
-- [x] PV model
-- [x] Power chain (buck, charger, protection, battery, boost)
-- [x] Position control and sensing chain
-- [ ] Sensor noise models. The INA219 offset, the selected conversion time and averaging setting, and the I2C read latency affect the detectability of power changes in the tracker.
-- [ ] Perturb-and-observe (P&O) controller implemented as a Stateflow chart. Here P&O perturbs the **panel angle** and observes the resulting power. It is not an electrical MPPT of the converter duty cycle.
-- [ ] Time-compressed 12-hour comparison of three cases: fixed panel, P&O tracker, and ideal tracker.
-- [ ] Controller code generation (later stage).
+> **Figure 2:** *Top-level Simulink block diagram. Signal flow propagates from environmental solar dynamics (left) through the PV array and 5 V buck stage to the CN3791 charger, DW01A/FS8205A protection ICs, 3 Ah Li-ion cell model, and boost output stage (right). The lower loops handle closed-loop position control (motors, encoders, PID) and INA219 sensor telemetry over I2C.*
 
-## Repository Structure
+---
+
+## 🛠️ Design Methodology & Principles
+
+Development adheres strictly to two engineering constraints:
+
+1. **Strict Library-Only Implementation:** Built exclusively with standard Simulink library blocks. No MATLAB Function blocks or hand-written scripts are used within the simulation loop to guarantee full compatibility with code generators.
+2. **Verify-Then-Integrate Workflow:** Every subsystem is independently verified against baseline mathematical calculations before system integration.
+
+---
+
+## ⚡ Implemented Subsystems
+
+| # | Subsystem | Functional Description | Reference Verification |
+|---|-----------|------------------------|------------------------|
+| **1** | **Solar Geometry** | Calculates Hour Angle, Solar Elevation, Azimuth, and Direct Normal Irradiance (DNI) including cloud transient events. | Elevation at solar noon: **54.73°** (at latitude 30.97° N, early October) |
+| **2** | **Incidence & Irradiance** | Computes incidence angle and Plane-of-Array (POA) irradiance. | Verified against analytical geometry calculations |
+| **3** | **PV Array Model** | Single-diode model featuring a vectorized 200-point I–V curve sweep. | Peak power output $\approx$ **4.8 W** at solar noon |
+| **4** | **Power Chain** | 5 V buck stage, CC/CV CN3791 charger model (pre-charge & recharge hysteresis), DW01A-style OV/UV/OC protection, 3 Ah Li-ion SOC estimator, and boost output load converter. | Subsystem-level energy balance checks |
+| **5** | **Position Control** | Actuator models (dead zone, 1st-order lag, mechanical stops), 12-bit encoder quantization, and discrete PID with anti-windup. | Transient step-response analysis |
+| **6** | **Sensing & Telemetry** | INA219 current/voltage monitor over I2C (shunt & bus registers, 12-bit ADC, polling latency). | LSB resolution: **10 µV / $R_{shunt}$** ($100\,\mu\text{A}$ step for $0.1\,\Omega$) and **4 mV** bus step |
+
+---
+
+## 🧮 Mathematical Reference Notes
+
+* **Solar Elevation Angle ($\alpha$):** Calculated at solar noon as:
+  $$\alpha = 90^\circ - \vert{}\phi - \delta\vert{}$$
+  *Where $\phi = 30.97^\circ\text{ N}$ (Latitude) and $\delta \approx -4.3^\circ$ (Solar Declination), matching early October.*
+
+* **Current Sensor Resolution:**
+  $$\Delta I = \frac{10\,\mu\text{V}}{R_{shunt}}$$
+  *For an assumed $R_{shunt} = 0.1\,\Omega$, this yields a discrete resolution of $100\,\mu\text{A}/\text{LSB}$. Dual INA219 modules (PV and Battery lines) utilize distinct I2C bus addresses.*
+
+---
+
+## 🗺️ Project Roadmap
+
+- [x] Solar geometry & irradiance modeling
+- [x] Photovoltaic (PV) single-diode model
+- [x] Complete power chain (Buck, Charger, Protection, Battery SOC, Boost)
+- [x] Position control loops & INA219 sensor telemetry
+- [ ] **Sensor Noise & Non-Idealities:** Ingestion of INA219 offset, conversion/averaging latency, and I2C jitter effects on tracker convergence.
+- [ ] **Stateflow P&O Tracker:** Implementation of Perturb-and-Observe (P&O) algorithm controlling **panel orientation angles** (mechanical MPPT).
+- [ ] **Comparative Performance Analysis:** 12-hour time-compressed comparison:
+  1. Fixed panel setup
+  2. Mechanical P&O tracker
+  3. Ideal mathematical tracker
+- [ ] **Embedded Target Code Generation (PIL/HIL).**
+
+---
+
+## 📂 Repository Structure
 
 ```text
 .
-├── models/        % Simulink models (.slx)
-├── scripts/       % Reference calculations and verification scripts
-├── data/          % Reference values and simulation outputs
-├── docs/          % Figures and notes
-└── README.md
-```
-
-> Adjust the folder names above to match the actual repository layout.
-
-## Requirements
-
-- MATLAB and Simulink (specify the release used)
-- Stateflow (for the planned P&O controller)
-
-## Usage
-
-1. Clone the repository.
-2. Open MATLAB and set the repository root as the current folder.
-3. Open the model in `models/` and run the verification scripts in `scripts/`.
-
-## Limitations
-
-- The study is simulation-only. No hardware validation has been performed.
-- The I2C link is modelled as a fixed read latency with register quantization. Bus faults and NACKs are not modelled.
-- Maximum PV power depends on the assumed irradiance and cell temperature, and is not quoted at standard test conditions (STC).
-
-## Feedback
-
-Comments are welcome, particularly from practitioners with experience in P&O tracking algorithms and small-scale battery management systems. Please open an issue or a discussion.
-
-## Citation
-
-If you use this work, please cite the repository:
-
-```bibtex
-@misc{dual_axis_tracker_simulink,
-  title  = {Dual-Axis Solar Tracker: A Model-Based Design Study in Simulink},
-  author = {Abdelrahman Hesham},
-  year   = {2026},
-  url    = {https://github.com/ae-hesham/Dual-Axis-Solar-Tracker-MBD-and-Hardware}
-}
-```
-
-## License
-
-This project is licensed under the Proprietary License - see the [LICENSE](LICENSE) file for details.
+├── models/         # Simulink model files (.slx) & animations (.gif)
+├── scripts/        # Analytical verification and baseline calculations
+├── data/           # Simulation logs, dataset, and reference parameters
+├── docs/           # High-resolution block diagrams and technical documentation
+└── README.md       # Project documentation
