@@ -7,7 +7,7 @@
 ## Abstract
 
 This repository contains a system-level Simulink model of a small dual-axis solar tracker with battery charging. The reference system comprises a 6 W photovoltaic (PV) panel, a single-cell (1S) Li-ion battery, and a 5 V load. The work follows a model-based design (MBD) approach and is currently at the **model-in-the-loop (MIL)** stage. Controller code generation is planned as a later step.
-
+![simulation Simulink model](models/1.gif)
 ## System Overview
 
 ![Top-level Simulink model](docs/system_model.png)
